@@ -1,0 +1,26 @@
+{
+  "name": "--yes",
+  "version": "1.0.0",
+  "description": "node js demo API example",
+  "main": "main.js",
+  "dependencies": {
+    "cookie-parser": "^1.4.3",
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "multer": "^1.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "localhost:8081/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrazahasan/nodejsAPI.git"
+  },
+  "author": "MRAZAH",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrazahasan/nodejsAPI/issues"
+  },
+  "homepage": "https://github.com/mrazahasan/nodejsAPI#readme"
+}
