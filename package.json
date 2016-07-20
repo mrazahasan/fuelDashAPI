@@ -1,9 +1,9 @@
 {
-  "name": "--yes",
-  "version": "1.0.0",
-  "description": "node js demo API example",
-  "main": "main.js",
-  "dependencies": {
+    "name": "nodejs",
+    "version": "1.0.0",
+    "description": "Nodejs API demo",
+    "main": "main.js",
+    "dependencies": {
     "body-parser": "^1.15.2",
     "cookie-parser": "^1.4.3",
     "express": "^4.14.0",
