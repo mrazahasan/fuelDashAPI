@@ -1,6 +1,6 @@
-> Node.js REST API Example with Express
+#> Node.js REST API Example with Express
 
-# Express.js 4.x
+
 
 `master` branch
 
@@ -13,4 +13,4 @@ $ npm install
 $ node main.js
 ```
 
-Then enter url 127.0.0.0:80801/
+Then enter url 127.0.0.1:80801/
