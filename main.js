@@ -11,6 +11,10 @@ var user = {
    }
 };
 
+app.set('port', (process.env.PORT || 5000));
+
+app.use(express.static(__dirname + '/public'));
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -74,8 +78,8 @@ app.get('/deleteUser/:id', function (req, res) {
 })
 
 
-var server = app.listen(8081, function () {
-    var host = server.address().address
-    var port = server.address().port
-    console.log("Example app listening at http://127.0.0.1:"+ port)
+var server = app.listen(app.get('port'), function () {
+    //var host = server.address().address
+    //var port = server.address().port
+    console.log("Example app listening at http://127.0.0.1:"+ app.get('port'))
 });
