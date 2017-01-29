@@ -12,7 +12,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "localhost:8081/"
+    "start": "main.js"
   },
   "repository": {
     "type": "git",
