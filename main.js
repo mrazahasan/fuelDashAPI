@@ -53,7 +53,7 @@ var getAllUsers = function (collectionName, db, callback) {
 };
 
 app.get('/', function (req, res) {
-    res.send('Hello World');
+    res.send('<b>Hello World</b>');
 });
 
 app.post('/login', function (req, res) {
