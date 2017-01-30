@@ -12,8 +12,6 @@ var url = 'mongodb://admin:admin123@ds135669.mlab.com:35669/fueldash';
 MongoClient.connect(url, function(err, db) {
   assert.equal(null, err);
   console.log("Connected successfully to server");
-
-  db.close();
 });
 var user = {
    "user4" : {
@@ -23,7 +21,35 @@ var user = {
       "id": 4
    }
 };
-
+var insertDocuments = function(db, callback) {
+    // Get the documents collection
+    var collection = db.collection('users');
+    // Insert some documents
+    collection.insertMany([{
+        "name" : "mahesh",
+        "password" : "password1",
+        "profession" : "teacher",
+        "id": 1
+    },
+    {
+        "name" : "suresh",
+        "password" : "password2",
+        "profession" : "librarian",
+        "id": 2
+    },
+    {
+        "name" : "ramesh",
+        "password" : "password3",
+        "profession" : "clerk",
+        "id": 3
+    }], function(err, result) {
+        assert.equal(err, null);
+        assert.equal(3, result.result.n);
+        assert.equal(3, result.ops.length);
+        console.log("Inserted 3 documents into the collection");
+        callback(result);
+    });
+};
 app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(__dirname + '/public'));
@@ -33,35 +59,10 @@ app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
     res.send('Hello World');
-    var insertDocuments = function(db, callback) {
-        // Get the documents collection
-        var collection = db.collection('users');
-        // Insert some documents
-        collection.insertMany([{
-            "name" : "mahesh",
-            "password" : "password1",
-            "profession" : "teacher",
-            "id": 1
-        },
-        {
-            "name" : "suresh",
-            "password" : "password2",
-            "profession" : "librarian",
-            "id": 2
-        },
-        {
-            "name" : "ramesh",
-            "password" : "password3",
-            "profession" : "clerk",
-            "id": 3
-        }], function(err, result) {
-            assert.equal(err, null);
-            assert.equal(3, result.result.n);
-            assert.equal(3, result.ops.length);
-            console.log("Inserted 3 documents into the collection");
-            callback(result);
-        });
-    }
+    insertDocuments(db, function() {
+        db.close();
+    });
+    
 });
 
 app.post('/login',function(req,res){
