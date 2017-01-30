@@ -4,7 +4,8 @@ var app = express();
 var morgan = require('morgan');
 var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
-var User = require('./models/user'); // get our mongoose model
+
+var apiRoutes = express.Router(); 
 //var fs = require("fs");
 
 
@@ -45,7 +46,7 @@ var insertDocuments = function (collectionName, user, db, callback) {
         assert.equal(err, null);
         //assert.equal(3, result.result.n);
         //assert.equal(3, result.ops.length);
-        console.log("Inserted 3 documents into the collection");
+        console.log("Inserted documents into the: " + collectionName);
         callback(result);
     });
 };
@@ -95,41 +96,41 @@ var removeDocument = function (db, callback) {
 // routes ================
 // =======================
 // basic route
-app.get('/', function (req, res) {
+apiRoutes.get('/', function (req, res) {
     res.send('<b>Hello World</b>');
 });
 
-app.post('/login', function (req, res) {
+apiRoutes.post('/login', function (req, res) {
     var user_name = req.body.user;
     var password = req.body.password;
     if (user_name != "" && password != "") {
         findUser('users', user_name, db, function (result) {
             res.send(result);
-            db.close();
+            //db.close();
         });
     }
     console.log("User name = " + user_name + ", password is " + password);
 });
 
-app.get('/listUsers', function (req, res) {
+apiRoutes.get('/listUsers', function (req, res) {
     getAllUsers('users', db, function (result) {
         res.send(result);
-        db.close();
+        //db.close();
     });
 });
 
-app.get('/addUser', function (req, res) {
+apiRoutes.get('/addUser', function (req, res) {
     var user = {
         "name": "user_name",
         "password": "password"
     };
     insertDocuments('users', user, db, function (result) {
         res.send(result);
-        db.close();
+        //db.close();
     });
 });
 
-app.get('/listUsers/:id', function (req, res) {
+apiRoutes.get('/listUsers/:id', function (req, res) {
     // First read existing users.
     // fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
     //     users = JSON.parse(data);
@@ -139,7 +140,7 @@ app.get('/listUsers/:id', function (req, res) {
     // });
 });
 
-app.get('/deleteUser/:id', function (req, res) {
+apiRoutes.get('/deleteUser/:id', function (req, res) {
 
     // First read existing users.
     // fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
@@ -150,7 +151,7 @@ app.get('/deleteUser/:id', function (req, res) {
     //     res.end(JSON.stringify(data));
     // });
 });
-app.get('/setup', function (req, res) {
+apiRoutes.get('/setup', function (req, res) {
 
     // create a sample user
     var nick = {
@@ -162,9 +163,12 @@ app.get('/setup', function (req, res) {
     // save the sample user
     insertDocuments('users', nick, db, function (result) {
         res.send(result);
-        db.close();
+        //db.close();
     });
 });
+
+// apply the routes to our application with the prefix /api
+app.use('/api', apiRoutes);
 
 
 // =======================
