@@ -4,14 +4,15 @@ var app = express();
 var fs = require("fs");
 var MongoClient = require('mongodb').MongoClient,
     assert = require('assert');
-
+var db;
 // Connection URL
 var url = 'mongodb://admin:admin123@ds135669.mlab.com:35669/fueldash';
 
 // Use connect method to connect to the server
-MongoClient.connect(url, function(err, db) {
+MongoClient.connect(url, function(err, _db) {
   assert.equal(null, err);
   console.log("Connected successfully to server");
+  db = _db;
 });
 var user = {
    "user4" : {
