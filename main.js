@@ -14,36 +14,12 @@ MongoClient.connect(url, function(err, _db) {
   console.log("Connected successfully to server");
   db = _db;
 });
-var user = {
-   "user4" : {
-      "name" : "mohit",
-      "password" : "password4",
-      "profession" : "teacher",
-      "id": 4
-   }
-};
-var insertDocuments = function(db, callback) {
+
+var insertDocuments = function(collectionName, obj, db, callback) {
     // Get the documents collection
-    var collection = db.collection('users');
+    var collection = db.collection(collectionName);
     // Insert some documents
-    collection.insertMany([{
-        "name" : "mahesh",
-        "password" : "password1",
-        "profession" : "teacher",
-        "id": 1
-    },
-    {
-        "name" : "suresh",
-        "password" : "password2",
-        "profession" : "librarian",
-        "id": 2
-    },
-    {
-        "name" : "ramesh",
-        "password" : "password3",
-        "profession" : "clerk",
-        "id": 3
-    }], function(err, result) {
+    collection.insertMany([obj], function(err, result) {
         assert.equal(err, null);
         assert.equal(3, result.result.n);
         assert.equal(3, result.ops.length);
@@ -59,16 +35,22 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
-    res.send('Hello World');
-    insertDocuments(db, function() {
-        db.close();
-    });
-    
+    res.send('Hello World');    
 });
 
 app.post('/login',function(req,res){
   var user_name=req.body.user;
   var password=req.body.password;
+  if(user_name != "" && password != ""){
+      var user = {
+      "name" : user_name,
+      "password" : password
+    };
+    insertDocuments('Users', user, db, function(result) {
+        res.send(result); 
+        db.close();
+    });
+  }
   console.log("User name = "+user_name+", password is "+password);
   res.writeHead(200, {"Content-Type": "application/json"});
 
