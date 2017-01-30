@@ -96,12 +96,12 @@ var removeDocument = function (db, callback) {
 // routes ================
 // =======================
 // basic route
-apiRoutes.get('/', function (req, res) {
+app.get('/', function (req, res) {
     res.send('<b>Hello World</b>');
 });
 
 // route to authenticate a user (POST http://localhost:8080/api/authenticate)
-apiRoutes.post('/authenticate', function (req, res) {
+apiRoutes.post('/login', function (req, res) {
     var user_name = req.body.user;
     var password = req.body.password;
     // find the user
@@ -156,27 +156,13 @@ apiRoutes.use(function (req, res, next) {
         });
 
     } else {
-
         // if there is no token
         // return an error
         return res.status(403).send({
             success: false,
             message: 'No token provided.'
         });
-
     }
-});
-
-apiRoutes.post('/login', function (req, res) {
-    var user_name = req.body.user;
-    var password = req.body.password;
-    if (user_name != "" && password != "") {
-        findUser('users', user_name, db, function (result) {
-            res.send(result);
-            //db.close();
-        });
-    }
-    console.log("User name = " + user_name + ", password is " + password);
 });
 
 apiRoutes.get('/listUsers', function (req, res) {
