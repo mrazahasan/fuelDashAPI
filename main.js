@@ -32,7 +32,36 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
-   res.send('Hello World');
+    res.send('Hello World');
+    var insertDocuments = function(db, callback) {
+        // Get the documents collection
+        var collection = db.collection('users');
+        // Insert some documents
+        collection.insertMany([{
+            "name" : "mahesh",
+            "password" : "password1",
+            "profession" : "teacher",
+            "id": 1
+        },
+        {
+            "name" : "suresh",
+            "password" : "password2",
+            "profession" : "librarian",
+            "id": 2
+        },
+        {
+            "name" : "ramesh",
+            "password" : "password3",
+            "profession" : "clerk",
+            "id": 3
+        }], function(err, result) {
+            assert.equal(err, null);
+            assert.equal(3, result.result.n);
+            assert.equal(3, result.ops.length);
+            console.log("Inserted 3 documents into the collection");
+            callback(result);
+        });
+    }
 });
 
 app.post('/login',function(req,res){
