@@ -95,14 +95,17 @@ var removeDocument = function (db, callback) {
 // =======================
 // routes ================
 // =======================
+
+
 // basic route
 app.get('/', function (req, res) {
     res.send('<b>Hello World</b>');
 });
 
-// route to authenticate a user (POST http://localhost:8080/api/authenticate)
+
+// route to authenticate a user (POST http://localhost:8080/api/login)
 apiRoutes.post('/login', function (req, res) {
-    var user_name = req.body.user;
+    var user_name = req.body.username;
     var password = req.body.password;
     // find the user
     findUser('users', user_name, db, function (result) {
@@ -131,6 +134,19 @@ apiRoutes.post('/login', function (req, res) {
             }
         }
 
+    });
+});
+
+
+//Create new user
+apiRoutes.post('/addUser', function (req, res) {
+    var user = {
+        "name": "user_name",
+        "password": "password"
+    };
+    insertDocuments('users', user, db, function (result) {
+        res.send(result);
+        //db.close();
     });
 });
 
@@ -165,6 +181,7 @@ apiRoutes.use(function (req, res, next) {
     }
 });
 
+
 apiRoutes.get('/listUsers', function (req, res) {
     getAllUsers('users', db, function (result) {
         res.send(result);
@@ -172,18 +189,8 @@ apiRoutes.get('/listUsers', function (req, res) {
     });
 });
 
-apiRoutes.get('/addUser', function (req, res) {
-    var user = {
-        "name": "user_name",
-        "password": "password"
-    };
-    insertDocuments('users', user, db, function (result) {
-        res.send(result);
-        //db.close();
-    });
-});
 
-apiRoutes.get('/listUsers/:id', function (req, res) {
+apiRoutes.get('/listUsers/:username', function (req, res) {
     // First read existing users.
     // fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
     //     users = JSON.parse(data);
@@ -192,6 +199,7 @@ apiRoutes.get('/listUsers/:id', function (req, res) {
     //     res.end(JSON.stringify(user));
     // });
 });
+
 
 apiRoutes.get('/deleteUser/:id', function (req, res) {
 
@@ -204,6 +212,8 @@ apiRoutes.get('/deleteUser/:id', function (req, res) {
     //     res.end(JSON.stringify(data));
     // });
 });
+
+
 apiRoutes.get('/setup', function (req, res) {
 
     // create a sample user
