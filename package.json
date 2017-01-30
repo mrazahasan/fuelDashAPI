@@ -1,17 +1,18 @@
 {
-    "name": "nodejs",
-    "version": "1.0.0",
-    "description": "Nodejs API demo",
-    "main": "main.js",
-    "dependencies": {
-      "body-parser": "^1.15.2",
-      "cookie-parser": "^1.4.3",
-      "express": "^4.14.0",
-      "mongodb": "^2.2.4",
-      "multer": "^1.1.0"
-    },
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "Nodejs API demo",
+  "main": "main.js",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0",
+    "jsonwebtoken": "^7.2.1",
+    "mongodb": "^2.2.4",
+    "morgan": "^1.7.0",
+    "multer": "^1.1.0"
+  },
   "devDependencies": {},
-  
   "scripts": {
     "start": "node main.js"
   },
