@@ -152,16 +152,29 @@ apiRoutes.post('/setup', function (req, res) {
             password: 'abc',
             admin: true
         };
-        bcrypt.hash(nick.password, null, null, function (err, hash) {
-            nick.password = hash;
-            // save the sample user
-            insertDocuments('users', nick, db, function (result) {
-                //res.send(result);
+        findUser('users', nick.username, db, function (result) {
+            console.log(result);
+            if (result.length > 0) {
                 // return the information including token as JSON
-                res.json(result.ops);
-                //db.close();
-            });
+                res.status(300).send({
+                    success: false,
+                    message: 'Username is already taken!'
+                });
+            }
+            else {
+                bcrypt.hash(nick.password, null, null, function (err, hash) {
+                    nick.password = hash;
+                    // save the sample user
+                    insertDocuments('users', nick, db, function (result) {
+                        //res.send(result);
+                        // return the information including token as JSON
+                        res.json(result.ops);
+                        //db.close();
+                    });
+                });
+            }
         });
+
     }
     else {
         // return the information including token as JSON
