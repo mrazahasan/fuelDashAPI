@@ -19,7 +19,7 @@ var insertDocuments = function(collectionName, obj, db, callback) {
     // Get the documents collection
     var collection = db.collection(collectionName);
     // Insert some documents
-    collection.insertMany([obj], function(err, result) {
+    collection.insertMany(obj, function(err, result) {
         assert.equal(err, null);
         assert.equal(3, result.result.n);
         assert.equal(3, result.ops.length);
@@ -42,10 +42,10 @@ app.post('/login',function(req,res){
   var user_name=req.body.user;
   var password=req.body.password;
   if(user_name != "" && password != ""){
-      var user = {
+      var user = [{
       "name" : user_name,
       "password" : password
-    };
+      }];
     insertDocuments('Users', user, db, function(result) {
         res.send(result); 
         db.close();
