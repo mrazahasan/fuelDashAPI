@@ -4,6 +4,7 @@ var app = express();
 var morgan = require('morgan');
 var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
+var bcrypt = require("bcrypt-nodejs");
 
 var apiRoutes = express.Router();
 //var fs = require("fs");
@@ -54,7 +55,7 @@ var findUser = function (collectionName, username, db, callback) {
     // Get the documents collection
     var collection = db.collection(collectionName);
     // Find some documents
-    collection.find({ 'name': username }).toArray(function (err, docs) {
+    collection.find({ 'username': username }).toArray(function (err, docs) {
         assert.equal(err, null);
         callback(docs);
     });
@@ -107,41 +108,74 @@ app.get('/', function (req, res) {
 apiRoutes.post('/login', function (req, res) {
     var user_name = req.body.username;
     var password = req.body.password;
+
     // find the user
     findUser('users', user_name, db, function (result) {
         console.log(result);
         if (result.length == 0) {
-            res.json({ success: false, message: 'Authentication failed. User not found.' });
+            res.json({ success: false, message: 'Authentication failed. Username not found.' });
         }
         else if (result.length == 1) {
             // check if password matches
-            if (result[0].password != password) {
-                res.json({ success: false, message: 'Authentication failed. Wrong password.' });
-            }
-            else {
-                // if user is found and password is right
-                // create a token
-                var token = jwt.sign(result[0], app.get('superSecret'), {
-                    expiresIn: 1440 // expires in 24 hours
-                });
+            bcrypt.compare(password, result[0].password, function (err, bcryptResponce) {
+                if (bcryptResponce == true) {
+                    // if user is found and password is right
+                    // create a token
+                    var token = jwt.sign(result[0], app.get('superSecret'), {
+                        expiresIn: 1440 // expires in 24 hours
+                    });
 
-                // return the information including token as JSON
-                res.json({
-                    success: true,
-                    message: 'Enjoy your token!',
-                    token: token
-                });
-            }
+                    // return the information including token as JSON
+                    res.json({
+                        success: true,
+                        message: 'Enjoy your token!',
+                        token: token
+                    });
+                }
+                else {
+                    res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+                }
+            });
+
         }
 
     });
 });
 
 
+apiRoutes.post('/setup', function (req, res) {
+    var _setup = req.body.setup;
+    if (_setup) {
+        // create a sample user
+        var nick = {
+            username: 'admin',
+            password: 'abc',
+            admin: true
+        };
+        bcrypt.hash(nick.password, null, null, function (err, hash) {
+            nick.password = hash;
+            // save the sample user
+            insertDocuments('users', nick, db, function (result) {
+                //res.send(result);
+                // return the information including token as JSON
+                res.json(result.ops);
+                //db.close();
+            });
+        });
+    }
+    else {
+        // return the information including token as JSON
+        res.status(401).send({
+            success: false,
+            message: 'You are not authorized'
+        });
+    }
+});
+
 //Create new user
 apiRoutes.post('/addUser', function (req, res) {
     var user = {
-        "name": "user_name",
+        "username": "user_name",
         "password": "password"
     };
     insertDocuments('users', user, db, function (result) {
@@ -201,7 +235,7 @@ apiRoutes.get('/listUsers/:username', function (req, res) {
 });
 
 
-apiRoutes.get('/deleteUser/:id', function (req, res) {
+apiRoutes.get('/deleteUser/:username', function (req, res) {
 
     // First read existing users.
     // fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
@@ -213,22 +247,6 @@ apiRoutes.get('/deleteUser/:id', function (req, res) {
     // });
 });
 
-
-apiRoutes.get('/setup', function (req, res) {
-
-    // create a sample user
-    var nick = {
-        name: 'admin',
-        password: 'password',
-        admin: true
-    };
-
-    // save the sample user
-    insertDocuments('users', nick, db, function (result) {
-        res.send(result);
-        //db.close();
-    });
-});
 
 // apply the routes to our application with the prefix /api
 app.use('/api', apiRoutes);
