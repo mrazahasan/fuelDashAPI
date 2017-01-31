@@ -47,39 +47,43 @@ app.get('/', function (req, res) {
 apiRoutes.post('/login', function (req, res) {
     var user_name = req.body.username;
     var password = req.body.password;
+    if (req.body.username == null) {
+        res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
+    }
+    else {
+        // find the user
+        User.findOne({ username: req.body.username }, function (err, user) {
+            if (err) throw err;
+            //console.log(user._doc);
+            if (user == null) {
+                res.json({ success: false, message: 'Login failed. Username not found.' });
+            }
+            else {
+                // check if password matches
+                bcrypt.compare(password, user._doc.password, function (err, bcryptResponce) {
+                    if (bcryptResponce == true) {
+                        // if user is found and password is right
+                        // create a token
+                        var token = jwt.sign({ user: user._doc.username }, app.get('superSecret'), {
+                            expiresIn: 1440 // expires in 24 hours
+                        });
 
-    // find the user
-    User.findOne({ username: req.body.username }, function (err, user) {
-        if (err) throw err;
-        //console.log(user._doc);
-        if (user == null) {
-            res.json({ success: false, message: 'Authentication failed. Username not found.' });
-        }
-        else {
-            // check if password matches
-            bcrypt.compare(password, user._doc.password, function (err, bcryptResponce) {
-                if (bcryptResponce == true) {
-                    // if user is found and password is right
-                    // create a token
-                    var token = jwt.sign({ user: user._doc.username }, app.get('superSecret'), {
-                        expiresIn: 1440 // expires in 24 hours
-                    });
+                        // return the information including token as JSON
+                        res.json({
+                            success: true,
+                            message: 'Enjoy your token!',
+                            token: token
+                        });
+                    }
+                    else {
+                        res.json({ success: false, message: 'Login failed. Wrong password.' });
+                    }
+                });
 
-                    // return the information including token as JSON
-                    res.json({
-                        success: true,
-                        message: 'Enjoy your token!',
-                        token: token
-                    });
-                }
-                else {
-                    res.json({ success: false, message: 'Authentication failed. Wrong password.' });
-                }
-            });
+            }
 
-        }
-
-    });
+        });
+    }
 });
 
 
@@ -127,6 +131,8 @@ apiRoutes.post('/setup', function (req, res) {
 
 //Create new user
 apiRoutes.post('/addUser', function (req, res) {
+    var user_name = req.body.username;
+    var password = req.body.password;
     var nick = new User({
         username: "user_name",
         password: "password",
