@@ -51,7 +51,7 @@ apiRoutes.post('/login', function (req, res) {
     // find the user
     User.findOne({ username: req.body.username }, function (err, user) {
         if (err) throw err;
-        console.log(user._doc);
+        //console.log(user._doc);
         if (user == null) {
             res.json({ success: false, message: 'Authentication failed. Username not found.' });
         }
