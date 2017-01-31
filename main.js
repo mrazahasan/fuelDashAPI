@@ -5,27 +5,22 @@ var morgan = require('morgan');
 var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
 var bcrypt = require("bcrypt-nodejs");
-
+var User = require('./models/users'); // get our mongoose model
 var apiRoutes = express.Router();
-//var fs = require("fs");
+//var fs = require("fs");   //file system
 
 
 // =======================
 // configuration =========
 // =======================
-var MongoClient = require('mongodb').MongoClient,
-    assert = require('assert');
+var mongoose = require('mongoose');
+var assert = require('assert');
 var db;
 // Connection URL
 var url = config.database;
 
 
-// Use connect method to connect to the server
-MongoClient.connect(url, function (err, _db) {
-    assert.equal(null, err);
-    console.log("Connected successfully to server");
-    db = _db;
-});
+mongoose.connect(config.database); // connect to database
 app.set('superSecret', config.secret); // secret variable
 app.set('port', (process.env.PORT || 5000));
 
@@ -110,18 +105,19 @@ apiRoutes.post('/login', function (req, res) {
     var password = req.body.password;
 
     // find the user
-    findUser('users', user_name, db, function (result) {
-        console.log(result);
-        if (result.length == 0) {
+    User.findOne({ username: req.body.username }, function (err, user) {
+        if (err) throw err;
+        console.log(user._doc);
+        if (user == null) {
             res.json({ success: false, message: 'Authentication failed. Username not found.' });
         }
-        else if (result.length == 1) {
+        else {
             // check if password matches
-            bcrypt.compare(password, result[0].password, function (err, bcryptResponce) {
+            bcrypt.compare(password, user._doc.password, function (err, bcryptResponce) {
                 if (bcryptResponce == true) {
                     // if user is found and password is right
                     // create a token
-                    var token = jwt.sign(result[0], app.get('superSecret'), {
+                    var token = jwt.sign({ user: user._doc.username }, app.get('superSecret'), {
                         expiresIn: 1440 // expires in 24 hours
                     });
 
@@ -147,14 +143,14 @@ apiRoutes.post('/setup', function (req, res) {
     var _setup = req.body.setup;
     if (_setup) {
         // create a sample user
-        var nick = {
+        var nick = new User({
             username: 'admin',
             password: 'abc',
             admin: true
-        };
-        findUser('users', nick.username, db, function (result) {
-            console.log(result);
-            if (result.length > 0) {
+        });
+        User.findOne({ username: "admin" }, function (err, user) {
+            if (err) throw err;
+            if (user != null) {
                 // return the information including token as JSON
                 res.status(300).send({
                     success: false,
@@ -162,19 +158,19 @@ apiRoutes.post('/setup', function (req, res) {
                 });
             }
             else {
-                bcrypt.hash(nick.password, null, null, function (err, hash) {
-                    nick.password = hash;
+                bcrypt.hash(nick.password, null, null, function (err, hashpass) {
+                    nick.password = hashpass;
                     // save the sample user
-                    insertDocuments('users', nick, db, function (result) {
-                        //res.send(result);
+                    nick.save(function (err, result) {
+                        if (err) throw err;
+                        console.log('User saved successfully');
                         // return the information including token as JSON
-                        res.json(result.ops);
-                        //db.close();
+                        res.json({ success: true, user: result._doc });
                     });
                 });
             }
-        });
 
+        });
     }
     else {
         // return the information including token as JSON
@@ -187,13 +183,20 @@ apiRoutes.post('/setup', function (req, res) {
 
 //Create new user
 apiRoutes.post('/addUser', function (req, res) {
-    var user = {
-        "username": "user_name",
-        "password": "password"
-    };
-    insertDocuments('users', user, db, function (result) {
-        res.send(result);
-        //db.close();
+    var nick = new User({
+        username: "user_name",
+        password: "password",
+        admin: false
+    });
+    bcrypt.hash(nick.password, null, null, function (err, hashpass) {
+        nick.password = hashpass;
+        // save the sample user
+        nick.save(function (err, result) {
+            if (err) throw err;
+            console.log('User saved successfully');
+            // return the information including token as JSON
+            res.json({ success: true, user: result._doc });
+        });
     });
 });
 
@@ -230,9 +233,10 @@ apiRoutes.use(function (req, res, next) {
 
 
 apiRoutes.get('/listUsers', function (req, res) {
-    getAllUsers('users', db, function (result) {
-        res.send(result);
-        //db.close();
+    User.find(function (err, users) {
+        if (err) return console.error(err);
+        console.log(users);
+        res.send(users);
     });
 });
 
