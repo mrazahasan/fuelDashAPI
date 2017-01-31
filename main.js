@@ -14,13 +14,12 @@ var apiRoutes = express.Router();
 // configuration =========
 // =======================
 var mongoose = require('mongoose');
-var assert = require('assert');
-var db;
+
 // Connection URL
 var url = config.database;
 
 
-mongoose.connect(config.database); // connect to database
+mongoose.connect(url); // connect to database
 app.set('superSecret', config.secret); // secret variable
 app.set('port', (process.env.PORT || 5000));
 
@@ -32,61 +31,6 @@ app.use(bodyParser.json());
 // use morgan to log requests to the console
 app.use(morgan('dev'));
 
-
-var insertDocuments = function (collectionName, user, db, callback) {
-    // Get the documents collection
-    var collection = db.collection(collectionName);
-    // Insert some documents
-
-    collection.insertMany([user], function (err, result) {
-        assert.equal(err, null);
-        //assert.equal(3, result.result.n);
-        //assert.equal(3, result.ops.length);
-        console.log("Inserted documents into the: " + collectionName);
-        callback(result);
-    });
-};
-var findUser = function (collectionName, username, db, callback) {
-    // Get the documents collection
-    var collection = db.collection(collectionName);
-    // Find some documents
-    collection.find({ 'username': username }).toArray(function (err, docs) {
-        assert.equal(err, null);
-        callback(docs);
-    });
-};
-var getAllUsers = function (collectionName, db, callback) {
-    // Get the documents collection
-    var collection = db.collection(collectionName);
-    // Find some documents
-    collection.find({}).toArray(function (err, docs) {
-        assert.equal(err, null);
-        callback(docs);
-    });
-};
-var updateDocument = function (db, callback) {
-    // Get the documents collection
-    var collection = db.collection('documents');
-    // Update document where a is 2, set b equal to 1
-    collection.updateOne({ a: 2 }
-        , { $set: { b: 1 } }, function (err, result) {
-            assert.equal(err, null);
-            assert.equal(1, result.result.n);
-            console.log("Updated the document with the field a equal to 2");
-            callback(result);
-        });
-};
-var removeDocument = function (db, callback) {
-    // Get the documents collection
-    var collection = db.collection('documents');
-    // Insert some documents
-    collection.deleteOne({ a: 3 }, function (err, result) {
-        assert.equal(err, null);
-        assert.equal(1, result.result.n);
-        console.log("Removed the document with the field a equal to 3");
-        callback(result);
-    });
-};
 
 // =======================
 // routes ================
