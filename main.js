@@ -19,7 +19,7 @@ var mongoose = require('mongoose');
 // Connection URL
 var url = config.database;
 
-
+mongoose.Promise = global.Promise; //Mongoose: mpromise (mongoose's default promise library) is deprecated, plug in your own promise library instead: http://mongoosejs.com/docs/promises.html
 mongoose.connect(url); // connect to database
 app.set('superSecret', config.secret); // secret variable
 app.set('port', (process.env.PORT || 5000));
@@ -132,19 +132,34 @@ apiRoutes.post('/setup', function (req, res) {
 });
 
 //Create new user
-apiRoutes.post('/addUser', function (req, res) {
+apiRoutes.post('/signUp', function (req, res) {
     var user_name = req.body.username;
     var password = req.body.password;
     var email = req.body.emailId;
-    if (user_name == null) {
-        res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
+    var phone = req.body.phone;
+    if (!user_name) {
+        res.status(404).send({ success: false, message: 'SignUp failed. Username is required.' });
+        return;
+    }
+    if (!email) {
+        res.status(404).send({ success: false, message: 'SignUp failed. Email Id is required.' });
+        return;
+    }
+    if (!phone) {
+        res.status(404).send({ success: false, message: 'SignUp failed. Phone number is required.' });
+        return;
+    }
+    if (!password) {
+        res.status(404).send({ success: false, message: 'SignUp failed. Password is required.' });
+        return;
     }
     else {
         var nick = new User({
             username: user_name,
             password: password,
             admin: false,
-            emailId: email
+            emailId: email,
+            phoneNo: phone
         });
         User.findOne({ username: req.body.username }, function (err, user) {
             if (err) throw err;
