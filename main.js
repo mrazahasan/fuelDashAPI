@@ -161,6 +161,7 @@ apiRoutes.post('/signUp', function (req, res) {
             emailId: email,
             phoneNo: phone
         });
+        
         User.findOne({ username: req.body.username }, function (err, user) {
             if (err) throw err;
             if (user != null) {
