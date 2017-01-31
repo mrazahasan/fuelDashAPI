@@ -9,7 +9,6 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.14.0",
     "jsonwebtoken": "^7.2.1",
-    "mongodb": "^2.2.4",
     "mongoose": "^4.8.1",
     "morgan": "^1.7.0",
     "multer": "^1.1.0"
@@ -20,12 +19,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mrazahasan/nodejsAPI.git"
+    "url": "git+https://github.com/mrazahasan/fuelDashAPI.git"
   },
   "author": "MRAZAH",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mrazahasan/nodejsAPI/issues"
+    "url": "https://github.com/mrazahasan/fuelDashAPI/issues"
   },
-  "homepage": "https://github.com/mrazahasan/nodejsAPI#readme"
+  "homepage": "https://github.com/mrazahasan/fuelDashAPI#readme"
 }
