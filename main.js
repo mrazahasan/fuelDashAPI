@@ -6,6 +6,7 @@ var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
 var bcrypt = require("bcrypt-nodejs");
 var User = require('./models/users'); // get our mongoose model
+var Brand = require('./models/brands'); // get our mongoose model
 var apiRoutes = express.Router();
 //var fs = require("fs");   //file system
 
@@ -202,6 +203,14 @@ apiRoutes.use(function (req, res, next) {
     }
 });
 
+
+apiRoutes.get('/getBrand', function (req, res) {
+    Brand.find(function (err, brands) {
+        if (err) return console.error(err);
+        res.send(brands);
+    });
+
+});
 
 apiRoutes.get('/listUsers', function (req, res) {
     User.find(function (err, users) {
