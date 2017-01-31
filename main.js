@@ -94,7 +94,8 @@ apiRoutes.post('/setup', function (req, res) {
         var nick = new User({
             username: 'admin',
             password: 'abc',
-            admin: true
+            admin: true,
+            emailId: "m_raza_hassan@hotmail.com"
         });
         User.findOne({ username: "admin" }, function (err, user) {
             if (err) throw err;
@@ -133,6 +134,7 @@ apiRoutes.post('/setup', function (req, res) {
 apiRoutes.post('/addUser', function (req, res) {
     var user_name = req.body.username;
     var password = req.body.password;
+    var email = req.body.emailId;
     if (user_name == null) {
         res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
     }
@@ -140,7 +142,8 @@ apiRoutes.post('/addUser', function (req, res) {
         var nick = new User({
             username: user_name,
             password: password,
-            admin: false
+            admin: false,
+            emailId: email
         });
         User.findOne({ username: req.body.username }, function (err, user) {
             if (err) throw err;
@@ -241,7 +244,5 @@ app.use('/api', apiRoutes);
 // start the server ======
 // =======================
 var server = app.listen(app.get('port'), function () {
-    //var host = server.address().address
-    //var port = server.address().port
     console.log("Magic happens at http://127.0.0.1:" + app.get('port'))
 });
