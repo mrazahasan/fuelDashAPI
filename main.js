@@ -133,21 +133,39 @@ apiRoutes.post('/setup', function (req, res) {
 apiRoutes.post('/addUser', function (req, res) {
     var user_name = req.body.username;
     var password = req.body.password;
-    var nick = new User({
-        username: "user_name",
-        password: "password",
-        admin: false
-    });
-    bcrypt.hash(nick.password, null, null, function (err, hashpass) {
-        nick.password = hashpass;
-        // save the sample user
-        nick.save(function (err, result) {
-            if (err) throw err;
-            console.log('User saved successfully');
-            // return the information including token as JSON
-            res.json({ success: true, user: result._doc });
+    if (user_name == null) {
+        res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
+    }
+    else {
+        var nick = new User({
+            username: user_name,
+            password: password,
+            admin: false
         });
-    });
+        User.findOne({ username: req.body.username }, function (err, user) {
+            if (err) throw err;
+            if (user != null) {
+                // return the information including token as JSON
+                res.status(300).send({
+                    success: false,
+                    message: 'Username is already taken!'
+                });
+            }
+            else {
+                bcrypt.hash(nick.password, null, null, function (err, hashpass) {
+                    nick.password = hashpass;
+                    // save the sample user
+                    nick.save(function (err, result) {
+                        if (err) throw err;
+                        console.log('User saved successfully');
+                        // return the information including token as JSON
+                        res.json({ success: true, user: result._doc });
+                    });
+                });
+            }
+
+        });
+    }
 });
 
 
