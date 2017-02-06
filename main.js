@@ -143,54 +143,58 @@ apiRoutes.post('/signUp', function (req, res) {
     var password = req.body.password;
     var email = req.body.emailId;
     var phone = req.body.phone;
-    if (!user_name) {
-        res.status(404).send({ success: false, message: 'SignUp failed. Username is required.' });
-        return;
-    }
-    if (!email) {
-        res.status(404).send({ success: false, message: 'SignUp failed. Email Id is required.' });
-        return;
-    }
-    if (!phone) {
-        res.status(404).send({ success: false, message: 'SignUp failed. Phone number is required.' });
-        return;
-    }
-    if (!password) {
-        res.status(404).send({ success: false, message: 'SignUp failed. Password is required.' });
-        return;
-    }
-    else {
-        var nick = new User({
-            username: user_name,
-            password: password,
-            admin: false,
-            emailId: email,
-            phoneNo: phone
-        });
+    try {
+        if (!user_name) {
+            res.status(404).send({ success: false, message: 'SignUp failed. Username is required.' });
+            return;
+        }
+        if (!email) {
+            res.status(404).send({ success: false, message: 'SignUp failed. Email Id is required.' });
+            return;
+        }
+        if (!phone) {
+            res.status(404).send({ success: false, message: 'SignUp failed. Phone number is required.' });
+            return;
+        }
+        if (!password) {
+            res.status(404).send({ success: false, message: 'SignUp failed. Password is required.' });
+            return;
+        }
+        else {
+            var nick = new User({
+                username: user_name,
+                password: password,
+                admin: false,
+                emailId: email,
+                phoneNo: phone
+            });
 
-        User.findOne({ username: req.body.username }, function (err, user) {
-            if (err) throw err;
-            if (user != null) {
-                // return the information including token as JSON
-                res.status(300).send({
-                    success: false,
-                    message: 'Username is already taken!'
-                });
-            }
-            else {
-                bcrypt.hash(nick.password, null, null, function (err, hashpass) {
-                    nick.password = hashpass;
-                    // save the sample user
-                    nick.save(function (err, result) {
-                        if (err) throw err;
-                        console.log('User saved successfully');
-                        // return the information including token as JSON
-                        res.json({ success: true, user: result._doc });
+            User.findOne({ username: req.body.username }, function (err, user) {
+                if (err) throw err;
+                if (user != null) {
+                    // return the information including token as JSON
+                    res.status(300).send({
+                        success: false,
+                        message: 'Username is already taken!'
                     });
-                });
-            }
+                }
+                else {
+                    bcrypt.hash(nick.password, null, null, function (err, hashpass) {
+                        nick.password = hashpass;
+                        // save the sample user
+                        nick.save(function (err, result) {
+                            if (err) throw err;
+                            console.log('User saved successfully');
+                            // return the information including token as JSON
+                            res.json({ success: true, user: result._doc });
+                        });
+                    });
+                }
 
-        });
+            });
+        }
+    } catch (e) {
+        res.status(500).send({ success: false, message: "Internal server error." });
     }
 });
 
