@@ -37,7 +37,7 @@ app.use(morgan('dev'));
 // =======================
 // routes ================
 // =======================
-app.use(cors()); 
+app.use(cors());
 
 // basic route
 app.get('/', function (req, res) {
@@ -49,42 +49,49 @@ app.get('/', function (req, res) {
 apiRoutes.post('/login', function (req, res) {
     var user_name = req.body.username;
     var password = req.body.password;
-    if (req.body.username == null) {
-        res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
-    }
-    else {
-        // find the user
-        User.findOne({ username: req.body.username }, function (err, user) {
-            if (err) throw err;
-            //console.log(user._doc);
-            if (user == null) {
-                res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
-            }
-            else {
-                // check if password matches
-                bcrypt.compare(password, user._doc.password, function (err, bcryptResponce) {
-                    if (bcryptResponce == true) {
-                        // if user is found and password is right
-                        // create a token
-                        var token = jwt.sign({ user: user._doc.username }, app.get('superSecret'), {
-                            expiresIn: 1440 // expires in 24 hours
-                        });
-
-                        // return the information including token as JSON
-                        res.json({
-                            success: true,
-                            message: 'Enjoy your token!',
-                            token: token
-                        });
+    try {
+        if (req.body.username == null) {
+            res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
+        }
+        else {
+            // find the user
+            User.findOne({ username: req.body.username }, function (err, user) {
+                try {
+                    if (err) throw err;
+                    //console.log(user._doc);
+                    if (user == null) {
+                        res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
                     }
                     else {
-                        res.status(404).send({ success: false, message: 'Login failed. Wrong password.' });
+                        // check if password matches
+                        bcrypt.compare(password, user._doc.password, function (err, bcryptResponce) {
+                            if (bcryptResponce == true) {
+                                // if user is found and password is right
+                                // create a token
+                                var token = jwt.sign({ user: user._doc.username }, app.get('superSecret'), {
+                                    expiresIn: 1440 // expires in 24 hours
+                                });
+
+                                // return the information including token as JSON
+                                res.json({
+                                    success: true,
+                                    message: 'Enjoy your token!',
+                                    token: token
+                                });
+                            }
+                            else {
+                                res.status(404).send({ success: false, message: 'Login failed. Wrong password.' });
+                            }
+                        });
+
                     }
-                });
-
-            }
-
-        });
+                } catch (e) {
+                    res.status(500).send({ success: false, message: "Internal server error." });
+                }
+            });
+        }
+    } catch (e) {
+        res.status(500).send({ success: false, message: "Internal server error." });
     }
 });
 
@@ -162,7 +169,7 @@ apiRoutes.post('/signUp', function (req, res) {
             emailId: email,
             phoneNo: phone
         });
-        
+
         User.findOne({ username: req.body.username }, function (err, user) {
             if (err) throw err;
             if (user != null) {
