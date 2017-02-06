@@ -9,6 +9,7 @@ var User = require('./models/users'); // get our mongoose model
 var Brand = require('./models/brands'); // get our mongoose model
 var apiRoutes = express.Router();
 var cors = require('cors');
+var email_validator = require("email-validator");
 //var fs = require("fs");   //file system
 
 
@@ -151,6 +152,8 @@ apiRoutes.post('/signUp', function (req, res) {
         if (!email) {
             res.status(404).send({ success: false, message: 'SignUp failed. Email Id is required.' });
             return;
+        } else if(!email_validator.validate(email)){
+            res.status(500).send({ success: false, message: 'SignUp failed. Email Id is not valid.' });
         }
         if (!phone) {
             res.status(404).send({ success: false, message: 'SignUp failed. Phone number is required.' });
