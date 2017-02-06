@@ -78,7 +78,7 @@ apiRoutes.post('/login', function (req, res) {
                         });
                     }
                     else {
-                        res.json({ success: false, message: 'Login failed. Wrong password.' });
+                        res.status(404).send({ success: false, message: 'Login failed. Wrong password.' });
                     }
                 });
 
