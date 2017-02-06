@@ -58,7 +58,7 @@ apiRoutes.post('/login', function (req, res) {
             if (err) throw err;
             //console.log(user._doc);
             if (user == null) {
-                res.json({ success: false, message: 'Login failed. Username not found.' });
+                res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
             }
             else {
                 // check if password matches
