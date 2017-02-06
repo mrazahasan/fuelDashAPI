@@ -75,6 +75,7 @@ apiRoutes.post('/login', function (req, res) {
 
                             // return the information including token as JSON
                             res.json({
+                                userDate: user._doc,
                                 success: true,
                                 message: 'Enjoy your token!',
                                 token: token
