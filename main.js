@@ -8,6 +8,7 @@ var bcrypt = require("bcrypt-nodejs");
 var User = require('./models/users'); // get our mongoose model
 var Brand = require('./models/brands'); // get our mongoose model
 var apiRoutes = express.Router();
+var cors = require('cors');
 //var fs = require("fs");   //file system
 
 
@@ -36,7 +37,7 @@ app.use(morgan('dev'));
 // =======================
 // routes ================
 // =======================
-
+app.use(cors()); 
 
 // basic route
 app.get('/', function (req, res) {
