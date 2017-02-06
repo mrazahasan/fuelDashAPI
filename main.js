@@ -56,38 +56,36 @@ apiRoutes.post('/login', function (req, res) {
         else {
             // find the user
             User.findOne({ username: req.body.username }, function (err, user) {
-                try {
-                    if (err) throw err;
-                    //console.log(user._doc);
-                    if (user == null) {
-                        res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
-                    }
-                    else {
-                        // check if password matches
-                        bcrypt.compare(password, user._doc.password, function (err, bcryptResponce) {
-                            if (bcryptResponce == true) {
-                                // if user is found and password is right
-                                // create a token
-                                var token = jwt.sign({ user: user._doc.username }, app.get('superSecret'), {
-                                    expiresIn: 1440 // expires in 24 hours
-                                });
 
-                                // return the information including token as JSON
-                                res.json({
-                                    success: true,
-                                    message: 'Enjoy your token!',
-                                    token: token
-                                });
-                            }
-                            else {
-                                res.status(404).send({ success: false, message: 'Login failed. Wrong password.' });
-                            }
-                        });
-
-                    }
-                } catch (e) {
-                    res.status(500).send({ success: false, message: "Internal server error." });
+                if (err) throw err;
+                //console.log(user._doc);
+                if (user == null) {
+                    res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
                 }
+                else {
+                    // check if password matches
+                    bcrypt.compare(password, user._doc.password, function (err, bcryptResponce) {
+                        if (bcryptResponce == true) {
+                            // if user is found and password is right
+                            // create a token
+                            var token = jwt.sign({ user: user._doc.username }, app.get('superSecret'), {
+                                expiresIn: 1440 // expires in 24 hours
+                            });
+
+                            // return the information including token as JSON
+                            res.json({
+                                success: true,
+                                message: 'Enjoy your token!',
+                                token: token
+                            });
+                        }
+                        else {
+                            res.status(404).send({ success: false, message: 'Login failed. Wrong password.' });
+                        }
+                    });
+
+                }
+
             });
         }
     } catch (e) {
