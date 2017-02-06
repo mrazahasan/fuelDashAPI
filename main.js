@@ -187,9 +187,17 @@ apiRoutes.post('/signUp', function (req, res) {
                         // save the sample user
                         nick.save(function (err, result) {
                             if (err) throw err;
-                            console.log('User saved successfully');
+                            // create a token
+                            var token = jwt.sign({ user: nick.username }, app.get('superSecret'), {
+                                expiresIn: 1440 // expires in 24 hours
+                            });
+
                             // return the information including token as JSON
-                            res.json({ success: true, user: result._doc });
+                            res.json({
+                                success: true,
+                                message: 'Enjoy your token!',
+                                token: token
+                            });
                         });
                     });
                 }
