@@ -195,6 +195,7 @@ apiRoutes.post('/signUp', function (req, res) {
 
                             // return the information including token as JSON
                             res.json({
+                                userDate: result._doc,
                                 success: true,
                                 message: 'User registered successfully',
                                 token: token
