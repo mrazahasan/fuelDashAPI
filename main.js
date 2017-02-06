@@ -154,6 +154,7 @@ apiRoutes.post('/signUp', function (req, res) {
             return;
         } else if (!email_validator.validate(email)) {
             res.status(500).send({ success: false, message: 'SignUp failed. Email Id is not valid.' });
+            return;
         }
         if (!phone) {
             res.status(404).send({ success: false, message: 'SignUp failed. Phone number is required.' });
