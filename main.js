@@ -262,6 +262,17 @@ apiRoutes.get('/listUsers', function (req, res) {
 
 
 apiRoutes.get('/listUsers/:username', function (req, res) {
+    // find the user
+            User.findOne({ username: req.params.username }, function (err, user) {
+                if (err) throw err;
+                //console.log(user._doc);
+                if (user == null) {
+                    res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
+                }
+                else {
+                    res.send(user);
+                }
+            });
     // First read existing users.
     // fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
     //     users = JSON.parse(data);
