@@ -22,13 +22,17 @@ var mongoose = require('mongoose');
 var url = config.database;
 
 mongoose.Promise = global.Promise; //Mongoose: mpromise (mongoose's default promise library) is deprecated, plug in your own promise library instead: http://mongoosejs.com/docs/promises.html
-mongoose.connect(url); // connect to database
+mongoose.connect(url, {
+    useMongoClient: true
+}); // connect to database
 app.set('superSecret', config.secret); // secret variable
 app.set('port', (process.env.PORT || 5000));
 
 //app.use(express.static(__dirname + '/public'));
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+    extended: false
+}));
 app.use(bodyParser.json());
 
 // use morgan to log requests to the console
@@ -52,24 +56,32 @@ apiRoutes.post('/login', function (req, res) {
     var password = req.body.password;
     try {
         if (req.body.username == null) {
-            res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
-        }
-        else {
+            res.status(404).send({
+                success: false,
+                message: 'Login failed. Username not found.'
+            });
+        } else {
             // find the user
-            User.findOne({ username: req.body.username }, function (err, user) {
+            User.findOne({
+                username: req.body.username
+            }, function (err, user) {
 
                 if (err) throw err;
                 //console.log(user._doc);
                 if (user == null) {
-                    res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
-                }
-                else {
+                    res.status(404).send({
+                        success: false,
+                        message: 'Login failed. Username not found.'
+                    });
+                } else {
                     // check if password matches
                     bcrypt.compare(password, user._doc.password, function (err, bcryptResponce) {
                         if (bcryptResponce == true) {
                             // if user is found and password is right
                             // create a token
-                            var token = jwt.sign({ user: user._doc.username }, app.get('superSecret'), {
+                            var token = jwt.sign({
+                                user: user._doc.username
+                            }, app.get('superSecret'), {
                                 expiresIn: 1440 // expires in 24 hours
                             });
 
@@ -80,9 +92,11 @@ apiRoutes.post('/login', function (req, res) {
                                 message: 'Enjoy your token!',
                                 token: token
                             });
-                        }
-                        else {
-                            res.status(404).send({ success: false, message: 'Login failed. Wrong password.' });
+                        } else {
+                            res.status(404).send({
+                                success: false,
+                                message: 'Login failed. Wrong password.'
+                            });
                         }
                     });
 
@@ -91,7 +105,10 @@ apiRoutes.post('/login', function (req, res) {
             });
         }
     } catch (e) {
-        res.status(500).send({ success: false, message: "Internal server error." });
+        res.status(500).send({
+            success: false,
+            message: "Internal server error."
+        });
     }
 });
 
@@ -101,12 +118,14 @@ apiRoutes.post('/setup', function (req, res) {
     if (_setup) {
         // create a sample user
         var nick = new User({
-            username: 'admin',
-            password: 'abc',
+            username: _setup.username,
+            password: _setup.password,
             admin: true,
-            emailId: "m_raza_hassan@hotmail.com"
+            emailId: _setup.emailId
         });
-        User.findOne({ username: "admin" }, function (err, user) {
+        User.findOne({
+            username: _setup.username
+        }, function (err, user) {
             if (err) throw err;
             if (user != null) {
                 // return the information including token as JSON
@@ -114,8 +133,7 @@ apiRoutes.post('/setup', function (req, res) {
                     success: false,
                     message: 'Username is already taken!'
                 });
-            }
-            else {
+            } else {
                 bcrypt.hash(nick.password, null, null, function (err, hashpass) {
                     nick.password = hashpass;
                     // save the sample user
@@ -123,14 +141,16 @@ apiRoutes.post('/setup', function (req, res) {
                         if (err) throw err;
                         console.log('User saved successfully');
                         // return the information including token as JSON
-                        res.json({ success: true, user: result._doc });
+                        res.json({
+                            success: true,
+                            user: result._doc
+                        });
                     });
                 });
             }
 
         });
-    }
-    else {
+    } else {
         // return the information including token as JSON
         res.status(401).send({
             success: false,
@@ -147,25 +167,39 @@ apiRoutes.post('/signUp', function (req, res) {
     var phone = req.body.phone;
     try {
         if (!user_name) {
-            res.status(404).send({ success: false, message: 'SignUp failed. Username is required.' });
+            res.status(404).send({
+                success: false,
+                message: 'SignUp failed. Username is required.'
+            });
             return;
         }
         if (!email) {
-            res.status(404).send({ success: false, message: 'SignUp failed. Email Id is required.' });
+            res.status(404).send({
+                success: false,
+                message: 'SignUp failed. Email Id is required.'
+            });
             return;
         } else if (!email_validator.validate(email)) {
-            res.status(500).send({ success: false, message: 'SignUp failed. Email Id is not valid.' });
+            res.status(500).send({
+                success: false,
+                message: 'SignUp failed. Email Id is not valid.'
+            });
             return;
         }
         if (!phone) {
-            res.status(404).send({ success: false, message: 'SignUp failed. Phone number is required.' });
+            res.status(404).send({
+                success: false,
+                message: 'SignUp failed. Phone number is required.'
+            });
             return;
         }
         if (!password) {
-            res.status(404).send({ success: false, message: 'SignUp failed. Password is required.' });
+            res.status(404).send({
+                success: false,
+                message: 'SignUp failed. Password is required.'
+            });
             return;
-        }
-        else {
+        } else {
             var nick = new User({
                 username: user_name,
                 password: password,
@@ -174,7 +208,9 @@ apiRoutes.post('/signUp', function (req, res) {
                 phoneNo: phone
             });
 
-            User.findOne({ username: req.body.username }, function (err, user) {
+            User.findOne({
+                username: req.body.username
+            }, function (err, user) {
                 if (err) throw err;
                 if (user != null) {
                     // return the information including token as JSON
@@ -182,15 +218,16 @@ apiRoutes.post('/signUp', function (req, res) {
                         success: false,
                         message: 'Username is already taken!'
                     });
-                }
-                else {
+                } else {
                     bcrypt.hash(nick.password, null, null, function (err, hashpass) {
                         nick.password = hashpass;
                         // save the sample user
                         nick.save(function (err, result) {
                             if (err) throw err;
                             // create a token
-                            var token = jwt.sign({ user: nick.username }, app.get('superSecret'), {
+                            var token = jwt.sign({
+                                user: nick.username
+                            }, app.get('superSecret'), {
                                 expiresIn: 1440 // expires in 24 hours
                             });
 
@@ -208,7 +245,10 @@ apiRoutes.post('/signUp', function (req, res) {
             });
         }
     } catch (e) {
-        res.status(500).send({ success: false, message: "Internal server error." });
+        res.status(500).send({
+            success: false,
+            message: "Internal server error."
+        });
     }
 });
 
@@ -216,31 +256,43 @@ apiRoutes.post('/signUp', function (req, res) {
 // route middleware to verify a token
 apiRoutes.use(function (req, res, next) {
 
-    // check header or url parameters or post parameters for token
-    var token = req.body.token || req.query.token || req.headers['token'];
-
-    // decode token
-    if (token) {
-
-        // verifies secret and checks exp
-        jwt.verify(token, app.get('superSecret'), function (err, decoded) {
-            if (err) {
-                return res.json({ success: false, message: 'Failed to authenticate token.' });
-            } else {
-                // if everything is good, save to request for use in other routes
-                req.decoded = decoded;
-                next();
-            }
-        });
-
+    if (req.path === "/login") {
+        next();
+    } else if (req.path === "/signUp") {
+        next();
+    } else if (req.path === "/setup") {
+        next();
     } else {
-        // if there is no token
-        // return an error
-        return res.status(403).send({
-            success: false,
-            message: 'No token provided.'
-        });
+        var token = req.body.token || req.query.token || req.headers['token'];
+
+        // decode token
+        if (token) {
+
+            // verifies secret and checks exp
+            jwt.verify(token, app.get('superSecret'), function (err, decoded) {
+                if (err) {
+                    return res.json({
+                        success: false,
+                        message: 'Failed to authenticate token.'
+                    });
+                } else {
+                    // if everything is good, save to request for use in other routes
+                    req.decoded = decoded;
+                    next();
+                }
+            });
+
+        } else {
+            // if there is no token
+            // return an error
+            return res.status(403).send({
+                success: false,
+                message: 'No token provided.'
+            });
+        }
     }
+
+
 });
 
 
@@ -263,16 +315,20 @@ apiRoutes.get('/listUsers', function (req, res) {
 
 apiRoutes.get('/listUsers/:username', function (req, res) {
     // find the user
-            User.findOne({ username: req.params.username }, function (err, user) {
-                if (err) throw err;
-                //console.log(user._doc);
-                if (user == null) {
-                    res.status(404).send({ success: false, message: 'Login failed. Username not found.' });
-                }
-                else {
-                    res.send(user);
-                }
+    User.findOne({
+        username: req.params.username
+    }, function (err, user) {
+        if (err) throw err;
+        //console.log(user._doc);
+        if (user == null) {
+            res.status(404).send({
+                success: false,
+                message: 'Login failed. Username not found.'
             });
+        } else {
+            res.send(user);
+        }
+    });
     // First read existing users.
     // fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
     //     users = JSON.parse(data);
