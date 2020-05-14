@@ -5,8 +5,8 @@ var morgan = require('morgan');
 var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
 var bcrypt = require("bcrypt-nodejs");
-var User = require('./models/users'); // get our mongoose model
-var Brand = require('./models/brands'); // get our mongoose model
+var db = require("./models"); // require
+
 var apiRoutes = express.Router();
 var cors = require('cors');
 var email_validator = require("email-validator");
@@ -62,7 +62,7 @@ apiRoutes.post('/login', function (req, res) {
             });
         } else {
             // find the user
-            User.findOne({
+            db.User.findOne({
                 username: req.body.username
             }, function (err, user) {
 
@@ -117,13 +117,13 @@ apiRoutes.post('/setup', function (req, res) {
     var _setup = req.body.setup;
     if (_setup) {
         // create a sample user
-        var nick = new User({
+        var nick = new db.User({
             username: _setup.username,
             password: _setup.password,
             admin: true,
             emailId: _setup.emailId
         });
-        User.findOne({
+        db.User.findOne({
             username: _setup.username
         }, function (err, user) {
             if (err) throw err;
@@ -200,7 +200,7 @@ apiRoutes.post('/signUp', function (req, res) {
             });
             return;
         } else {
-            var nick = new User({
+            var nick = new db.User({
                 username: user_name,
                 password: password,
                 admin: false,
@@ -208,7 +208,7 @@ apiRoutes.post('/signUp', function (req, res) {
                 phoneNo: phone
             });
 
-            User.findOne({
+            db.User.findOne({
                 username: req.body.username
             }, function (err, user) {
                 if (err) throw err;
@@ -262,7 +262,7 @@ apiRoutes.get('/getBrand', function (req, res) {
 });
 
 apiRoutes.get('/listUsers', function (req, res) {
-    User.find(function (err, users) {
+    db.User.find(function (err, users) {
         if (err) return console.error(err);
         console.log(users);
         res.send(users);
@@ -270,22 +270,24 @@ apiRoutes.get('/listUsers', function (req, res) {
 });
 
 
-apiRoutes.get('/listUsers/:username', function (req, res) {
+apiRoutes.get('/getUser/:username', function (req, res) {
     // find the user
-    User.findOne({
-        username: req.params.username
-    }, function (err, user) {
-        if (err) throw err;
-        //console.log(user._doc);
-        if (user == null) {
-            res.status(404).send({
-                success: false,
-                message: 'Login failed. Username not found.'
-            });
-        } else {
-            res.send(user);
-        }
-    });
+    db.User.findOne({
+            username: req.params.username
+        }).populate("cars")
+        .then(function (user) {
+            //console.log(user._doc);
+            if (user == null) {
+                res.status(404).send({
+                    success: false,
+                    message: 'Username not found.'
+                });
+            } else {
+                res.send(user);
+            }
+        }).catch(function (err) {
+            res.json(err);
+        });
     // First read existing users.
     // fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
     //     users = JSON.parse(data);
@@ -297,24 +299,50 @@ apiRoutes.get('/listUsers/:username', function (req, res) {
 
 
 apiRoutes.get('/deleteUser/:username', function (req, res) {
-    User.deleteOne({
+    db.User.deleteOne({
         username: req.params.username
     }, function (err, user) {
-        
+
         if (err) throw err;
         if (user.deletedCount === 1) {
             res.status(200).send({
                 success: true,
                 message: 'User deleted successfully.'
             });
-        }
-        else{
+        } else {
             res.status(404).send({
                 success: false,
                 message: 'User not found.'
             });
         }
 
+    });
+});
+
+apiRoutes.post('/addCar/:username', function (req, res) {
+
+    var newCar = db.Cars({
+        model: req.body.model,
+        year: req.body.year,
+        company: req.body.company
+    });
+    newCar.save().then(function (car) {
+        return db.User.findOneAndUpdate({
+            username: req.params.username
+        }, {
+            $push: {
+                cars: car._id
+            }
+        }, {
+            new: true
+        });
+    }).then(function (User) {
+        res.status(200).send({
+            success: true,
+            message: 'Car added successfully.'
+        });
+    }).catch(function (err) {
+        res.json(err);
     });
 });
 

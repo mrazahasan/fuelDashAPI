@@ -12,18 +12,14 @@ module.exports = mongoose.model('User', new Schema({
     emailId: String,
     cars:[
         {
-            model: String,
-            year: String,
-            company: String
+            type: Schema.Types.ObjectId,
+            ref: "Cars"
         }
     ],
     fuelHistory:[
         {
-            rupees: Number,
-            liters: Number,
-            mileage: Number,
-            numberOfTrips: Number,
-            brandName: String
+            type: Schema.Types.ObjectId,
+            ref: "FuelHistoy"
         }
     ]
 }));
