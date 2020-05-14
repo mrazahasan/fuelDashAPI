@@ -253,49 +253,6 @@ apiRoutes.post('/signUp', function (req, res) {
 });
 
 
-// route middleware to verify a token
-apiRoutes.use(function (req, res, next) {
-
-    if (req.path === "/login") {
-        next();
-    } else if (req.path === "/signUp") {
-        next();
-    } else if (req.path === "/setup") {
-        next();
-    } else {
-        var token = req.body.token || req.query.token || req.headers['token'];
-
-        // decode token
-        if (token) {
-
-            // verifies secret and checks exp
-            jwt.verify(token, app.get('superSecret'), function (err, decoded) {
-                if (err) {
-                    return res.json({
-                        success: false,
-                        message: 'Failed to authenticate token.'
-                    });
-                } else {
-                    // if everything is good, save to request for use in other routes
-                    req.decoded = decoded;
-                    next();
-                }
-            });
-
-        } else {
-            // if there is no token
-            // return an error
-            return res.status(403).send({
-                success: false,
-                message: 'No token provided.'
-            });
-        }
-    }
-
-
-});
-
-
 apiRoutes.get('/getBrand', function (req, res) {
     Brand.find(function (err, brands) {
         if (err) return console.error(err);
@@ -340,18 +297,68 @@ apiRoutes.get('/listUsers/:username', function (req, res) {
 
 
 apiRoutes.get('/deleteUser/:username', function (req, res) {
+    User.deleteOne({
+        username: req.params.username
+    }, function (err, user) {
+        
+        if (err) throw err;
+        if (user.deletedCount === 1) {
+            res.status(200).send({
+                success: true,
+                message: 'User deleted successfully.'
+            });
+        }
+        else{
+            res.status(404).send({
+                success: false,
+                message: 'User not found.'
+            });
+        }
 
-    // First read existing users.
-    // fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
-    //     data = JSON.parse(data);
-    //     delete data["user" + req.params.id];
-
-    //     console.log(data);
-    //     res.end(JSON.stringify(data));
-    // });
+    });
 });
 
+// route middleware to verify a token
+apiRoutes.use(function (req, res, next) {
 
+    if (req.path === "/login") {
+        next();
+    } else if (req.path === "/signUp") {
+        next();
+    } else if (req.path === "/setup") {
+        next();
+    } else {
+        var token = req.body.token || req.query.token || req.headers['token'];
+
+        // decode token
+        if (token) {
+
+            // verifies secret and checks exp
+            jwt.verify(token, app.get('superSecret'), function (err, decoded) {
+                if (err) {
+                    return res.json({
+                        success: false,
+                        message: 'Failed to authenticate token.'
+                    });
+                } else {
+                    // if everything is good, save to request for use in other routes
+                    req.decoded = decoded;
+                    next();
+                }
+            });
+
+        } else {
+            // if there is no token
+            // return an error
+            return res.status(403).send({
+                success: false,
+                message: 'No token provided.'
+            });
+        }
+    }
+
+
+});
 // apply the routes to our application with the prefix /api
 app.use('/api', apiRoutes);
 
