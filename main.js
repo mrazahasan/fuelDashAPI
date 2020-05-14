@@ -358,7 +358,10 @@ apiRoutes.use(function (req, res, next) {
         next();
     } else if (req.path === "/setup") {
         next();
-    } else {
+    // } else if(req.path === "/api-docs"){
+    //     next();
+    } 
+    else {
         var token = req.body.token || req.query.token || req.headers['token'];
 
         // decode token

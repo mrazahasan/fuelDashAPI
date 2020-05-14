@@ -9,12 +9,12 @@
             "url": "https://opensource.org/licenses/MIT"
         }
     },
-    "host": "localhost:3000",
-    "basePath": "/api/v1",
+    "host": "http://127.0.0.1:5000/",
+    "basePath": "api",
     "tags": [
         {
-            "name": "Users",
-            "description": "API for users in the system"
+            "name": "M Raza Hasan",
+            "description": "API for JDS management"
         }
     ],
     "schemes": [
@@ -27,6 +27,103 @@
         "application/json"
     ],
     "paths": {
+        "/setup": {
+            "post": {
+                "tags": [
+                    "Public APIs"
+                ],
+                "description": "Create new admi user in system",
+                "parameters": [
+                    {
+                        "name": "setup",
+                        "in": "body",
+                        "description": "User that we want to create",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    },
+                    "300": {
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    },
+                    "401": {
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/signUp": {
+            "post": {
+                "tags": [
+                    "Public APIs"
+                ],
+                "description": "Create new user in system",
+                "parameters": [
+                    {
+                        "name": "signUp",
+                        "in": "body",
+                        "description": "User that we want to create",
+                        "schema": {
+                            "$ref": "#/definitions/SetupUser"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ]
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Public APIs"
+                ],
+                "description": "User Log in",
+                "parameters": [
+                    {
+                        "name": "login",
+                        "in": "body",
+                        "description": "User you want to login",
+                        "schema": {
+                            "$ref": "#/definitions/LoginUser"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/LoginResponse"
+                        }
+                    },
+                    "404": {
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    },
+                    "500": {
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "post": {
                 "tags": [
@@ -137,29 +234,96 @@
     "definitions": {
         "User": {
             "required": [
-                "email",
-                "_id"
+                "username",
+                "password",
+                "emailId",
+                "phone"
             ],
             "properties": {
-                "_id": {
+                "username": {
                     "type": "string",
                     "uniqueItems": true
                 },
-                "email": {
-                    "type": "string",
-                    "uniqueItems": true
-                },
-                "lastName": {
+                "password": {
                     "type": "string"
                 },
-                "firstName": {
+                "emailId": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 }
             }
         },
-        "Users": {
-            "type": "array",
-            "$ref": "#/definitions/User"
+        "SetupUser": {
+            "required": [
+                "username",
+                "password",
+                "emailId"
+            ],
+            "properties": {
+                "username": {
+                    "type": "string",
+                    "uniqueItems": true
+                },
+                "password": {
+                    "type": "string"
+                },
+                "emailId": {
+                    "type": "string"
+                }
+            }
+        },
+        "LoginUser": {
+            "required": [
+                "username",
+                "password"
+            ],
+            "properties": {
+                "username": {
+                    "type": "string",
+                    "uniqueItems": true
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "Car": {
+            "properties": {
+                "model": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "string"
+                },
+                "company": {
+                    "type": "string"
+                }
+            }
+        },
+        "LoginResponse": {
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "Response": {
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
         }
     }
 }
