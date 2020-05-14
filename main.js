@@ -6,10 +6,13 @@ var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
 var bcrypt = require("bcrypt-nodejs");
 var db = require("./models"); // require
-
 var apiRoutes = express.Router();
 var cors = require('cors');
 var email_validator = require("email-validator");
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+ 
+
 //var fs = require("fs");   //file system
 
 
@@ -23,7 +26,7 @@ var url = config.database;
 
 mongoose.Promise = global.Promise; //Mongoose: mpromise (mongoose's default promise library) is deprecated, plug in your own promise library instead: http://mongoosejs.com/docs/promises.html
 mongoose.connect(url, {
-    useMongoClient: true
+    useNewUrlParser: true
 }); // connect to database
 app.set('superSecret', config.secret); // secret variable
 app.set('port', (process.env.PORT || 5000));
@@ -44,7 +47,7 @@ app.use(morgan('dev'));
 // =======================
 app.use(cors());
 
-// basic route
+// // basic route
 app.get('/', function (req, res) {
     res.send('<b>Hello World</b>');
 });
@@ -387,6 +390,9 @@ apiRoutes.use(function (req, res, next) {
 
 
 });
+
+// API documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // apply the routes to our application with the prefix /api
 app.use('/api', apiRoutes);
 
